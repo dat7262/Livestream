@@ -2,41 +2,40 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Sender - Phát camera</title>
-  <style>
-    /* Ẩn video camera trên giao diện */
-    #localVideo {
-      display: none;
-    }
-  </style>
+  <title>Viewer - Xem camera trực tiếp</title>
 </head>
 <body>
-  <video id="localVideo" autoplay muted playsinline></video>
+  <h2>Đang xem camera trực tiếp</h2>
+  <video id="remoteVideo" autoplay playsinline controls></video>
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script>
-    const VIDEO_ID = "my-fixed-stream-id";
+    const VIDEO_ID = "my-fixed-stream-id"; // phải giống với sender
 
-    const peer = new Peer(VIDEO_ID);
+    const peer = new Peer();
 
-    peer.on('open', id => {
-      console.log("Peer ID:", id);
-      startCamera();
+    peer.on('open', () => {
+      const fakeStream = getFakeMediaStream(); // tránh lỗi PeerJS
+
+      const call = peer.call(VIDEO_ID, fakeStream);
+
+      call.on('stream', stream => {
+        document.getElementById('remoteVideo').srcObject = stream;
+      });
+
+      call.on('error', err => {
+        console.error("Lỗi khi nhận stream:", err);
+      });
     });
 
-    function startCamera() {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then(stream => {
-          document.getElementById('localVideo').srcObject = stream;
-
-          peer.on('call', call => {
-            call.answer(stream);
-          });
-        })
-        .catch(error => {
-          console.error("Không truy cập được camera:", error);
-          alert("Không truy cập được camera.");
-        });
+    function getFakeMediaStream() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 240;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return canvas.captureStream();
     }
   </script>
 </body>
