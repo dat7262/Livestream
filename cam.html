@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sender - Phát camera</title>
+  <style>
+    /* Ẩn video camera trên giao diện */
+    #localVideo {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <video id="localVideo" autoplay muted playsinline></video>
+
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script>
+    const VIDEO_ID = "my-fixed-stream-id";
+
+    const peer = new Peer(VIDEO_ID);
+
+    peer.on('open', id => {
+      console.log("Peer ID:", id);
+      startCamera();
+    });
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(stream => {
+          document.getElementById('localVideo').srcObject = stream;
+
+          peer.on('call', call => {
+            call.answer(stream);
+          });
+        })
+        .catch(error => {
+          console.error("Không truy cập được camera:", error);
+          alert("Không truy cập được camera.");
+        });
+    }
+  </script>
+</body>
+</html>
