@@ -34,20 +34,6 @@
   <video id="viewBack" autoplay playsinline controls></video>
 
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script>
-    function watchStream(peerId, videoElementId) {
-      const peer = new Peer();
-      peer.on("open", () => {
-        const call = peer.call(peerId, null);
-        call.on("stream", stream => {
-          document.getElementById(videoElementId).srcObject = stream;
-        });
-      });
-    }
-
-    // Xem camera trước và sau
-    watchStream("stream-front", "viewFront");
-    watchStream("stream-back", "viewBack");
-  </script>
+  <script scr="main.js"></script>
 </body>
 </html>
