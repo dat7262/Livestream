@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Xem Free Fire Stream</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    video {
+      width: 90%;
+      max-width: 400px;
+      margin: 10px;
+      border: 3px solid #fff;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>XEM LIVESTREAM</h1>
+  <video id="viewFront" autoplay playsinline controls></video>
+  <video id="viewBack" autoplay playsinline controls></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script>
+    function watchStream(peerId, videoElementId) {
+      const peer = new Peer();
+      peer.on("open", () => {
+        const call = peer.call(peerId, null);
+        call.on("stream", stream => {
+          document.getElementById(videoElementId).srcObject = stream;
+        });
+      });
+    }
+
+    // Xem camera trước và sau
+    watchStream("stream-front", "viewFront");
+    watchStream("stream-back", "viewBack");
+  </script>
+</body>
+</html>
